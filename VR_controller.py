@@ -1,3 +1,5 @@
+"""VR Controller is an object which interfaces with the "VR v2" """
+
 import time
 
 serial_imported = True
@@ -14,13 +16,13 @@ class VR_controller:
         if(serial_imported == False):
             print("Serial is not Installed")
         else:
-            ser = serial.Serial(
+            self.ser = serial.Serial(
                         port='/dev/ttyAMA0',
                         baudrate = 9600,
                         parity=serial.PARITY_NONE,
                         stopbits=serial.STOPBITS_ONE,
                         bytesize=serial.EIGHTBITS,
-                        timeout=1)
+                        timeout=5)
             print("Serial Port instantiated!")
         self.commands = {"wait": b"\x00",
                     "del_1": b"\x01",
@@ -80,12 +82,19 @@ class VR_controller:
             else:
                 command = b"\xaa" + command
                 self.ser.write(command)
-                time.sleep(0.1)
-
-                while (self.ser.inWaiting>0):
-                    print(self.ser.read())
-                return 1
+                print(command)
+                time.sleep(0.5)
+                while (1):
+                    time.sleep(2.5)
+                    x = self.ser.readline()
+                    print(x)
+                    if x==b'':
+                        break
+                return
         else:
             print('Paramemter needs to be of type "byte"')
-# l_commands = ['wait', 'del_1', 'del_2 ', 'del_3', 'del_all', 'begin_rec_1', 'begin_rec_2', 'begin_rec_3', 'import_1', 'import_2', 'import_3', 'query_all', 'baud_2400', 'baud_4800', 'baud_9600', 'baud_19200', 'baud_38400', 'mode_common', 'mode_compact', 'reset_1', 'reset_2', 'reset_3', 'reset_4', 'reset_5', 'reset_all', 'mode_pulse', 'mode_flip', 'mode_down', 'mode_up', 'pulse_time_10ms', 'pulse_time_15ms', 'pulse_time_20ms', 'pulse_time_25ms', 'pulse_time_30ms', 'pulse_time_50ms', 'pulse_time_60ms', 'pulse_time_70ms', 'pulse_time_80ms', 'pulse_time_90ms', 'pulse_time_100ms', 'pulse_time_200ms', 'pulse_time_300ms', 'pulse_time_400ms', 'pulse_time_500ms', 'pulse_time_1000ms', 'reset', 'version']
+
+    def record_group(self, group_num):
+        command = self.commands["begin_rec_" + str(group_num)]
+        self.send_command(command)
 
